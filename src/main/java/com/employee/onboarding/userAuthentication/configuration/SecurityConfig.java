@@ -41,7 +41,8 @@ public class SecurityConfig {
                 "/api/users/verify-otp", 
                 "/api/users/login", 
                 "/api/users/generate-token",
-                "/api/users/forgot-password"
+                "/api/users/forgot-password",
+                "/api/users/change-password"
             ).permitAll()
             .anyRequest().authenticated()
             .and()

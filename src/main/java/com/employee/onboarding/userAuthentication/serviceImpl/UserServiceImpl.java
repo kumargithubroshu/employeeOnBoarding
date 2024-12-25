@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +17,9 @@ import com.employee.onboarding.userAuthentication.entity.User;
 import com.employee.onboarding.userAuthentication.enummeration.Status;
 import com.employee.onboarding.userAuthentication.exception.EmailAlreadyInUseException;
 import com.employee.onboarding.userAuthentication.exception.InvalidOtpException;
+import com.employee.onboarding.userAuthentication.exception.InvalidPasswordException;
 import com.employee.onboarding.userAuthentication.exception.UserNotFoundException;
+import com.employee.onboarding.userAuthentication.pojoRequest.ChangePasswordRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
 import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
@@ -112,5 +116,18 @@ public class UserServiceImpl implements UserService {
 			throw new UserNotFoundException("No user found with the provided email.");
 		}
 		emailService.sendEmail(user.getEmail(), "Your Password", "Your password is: " + user.getPassword());
+	}
+
+	@Override
+	public void changePassword(ChangePasswordRequest request) throws Exception {
+		if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+			throw new InvalidPasswordException("New password and confirm password do not match.");
+		}
+		User user = userRepo.findByEmail(request.getEmail());
+		if (!request.getCurrentPassword().equals(user.getPassword())) {
+			throw new InvalidPasswordException("Current password is incorrect.");
+		}
+		user.setPassword(request.getNewPassword());
+		userRepo.save(user);
 	}
 }

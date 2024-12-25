@@ -14,6 +14,7 @@ import com.employee.onboarding.userAuthentication.exception.EmailAlreadyInUseExc
 import com.employee.onboarding.userAuthentication.exception.InvalidOtpException;
 import com.employee.onboarding.userAuthentication.exception.UserNotFoundException;
 import com.employee.onboarding.userAuthentication.exception.UsernameMismatchException;
+import com.employee.onboarding.userAuthentication.pojoRequest.ChangePasswordRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.TokenRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
@@ -95,6 +96,17 @@ public class UserController {
 	    } catch (Exception e) {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 	                .body(new Message("Failed to retrieve password. Please try again later."));
+	    }
+	}
+	
+	@PostMapping("/change-password")
+	public ResponseEntity<Message> changePassword(@RequestBody ChangePasswordRequest request) {
+	    try {
+	        userService.changePassword(request);
+	        return ResponseEntity.ok(new Message("Password updated successfully."));
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(new Message("Failed to update password. Please try again later."));
 	    }
 	}
 }
