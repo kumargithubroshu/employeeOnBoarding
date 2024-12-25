@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -30,13 +31,17 @@ public class User {
 	private long userId;
 
 	@Column(name = "name")
+	@NotBlank
 	private String userName;
 
 	@Column(name = "password")
+	@NotBlank
 	private String password;
 
 	@Column(name = "email")
-	@Email(regexp = "^[a-zA-Z0-9._%+-]+@gmail\\.com$", message = "Email must be a valid Gmail address")
+//	@Email(regexp = "^[a-zA-Z0-9._%+-]+@gmail\\.com$", message = "Email must be a valid Gmail address")
+	@Email
+	@NotBlank
 	private String email;
 
 	@Column(name = "role")
@@ -49,6 +54,7 @@ public class User {
 	private LocalDateTime updatedAt;
 
 	@Column(name = "phone_number")
+	@NotBlank
 	private String phoneNumber;
 
 	@Column(name = "status")

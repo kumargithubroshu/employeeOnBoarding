@@ -18,16 +18,16 @@ public class SecurityConfig {
 	@Autowired
     private CustomUserDetailsService customUserDetailsService; 
     
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         return http.getSharedObject(AuthenticationManagerBuilder.class)
                 .userDetailsService(customUserDetailsService)
-                .passwordEncoder(passwordEncoder())
+//                .passwordEncoder(passwordEncoder())
                 .and()
                 .build();
     }
@@ -40,7 +40,8 @@ public class SecurityConfig {
                 "/api/users/register", 
                 "/api/users/verify-otp", 
                 "/api/users/login", 
-                "/api/users/generate-token"
+                "/api/users/generate-token",
+                "/api/users/forgot-password"
             ).permitAll()
             .anyRequest().authenticated()
             .and()

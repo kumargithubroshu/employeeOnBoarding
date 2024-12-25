@@ -15,6 +15,7 @@ import com.employee.onboarding.userAuthentication.entity.User;
 import com.employee.onboarding.userAuthentication.enummeration.Status;
 import com.employee.onboarding.userAuthentication.exception.EmailAlreadyInUseException;
 import com.employee.onboarding.userAuthentication.exception.InvalidOtpException;
+import com.employee.onboarding.userAuthentication.exception.UserNotFoundException;
 import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
 import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
@@ -36,8 +37,8 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private EmailService emailService;
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+//	@Autowired
+//	private PasswordEncoder passwordEncoder;
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -50,7 +51,7 @@ public class UserServiceImpl implements UserService {
 		}
 		User user = new User();
 		user.setUserName(request.getUserName());
-		user.setPassword(passwordEncoder.encode(request.getPassword()));
+		user.setPassword(request.getPassword());
 		user.setEmail(request.getEmail());
 		user.setRole(request.getRole().toString());
 		user.setPhoneNumber(request.getPhoneNumber());
@@ -72,25 +73,25 @@ public class UserServiceImpl implements UserService {
 	private String generateOtp() {
 		return String.valueOf((int) ((Math.random() * 900000) + 100000)); // 6-digit OTP
 	}
-	
+
 	@Override
 	public void verifyOtp(Long userId, String otp) {
 
 		String savedOtp = otpService.getOtpForUser(userId);
 
-	    if (!otp.equals(savedOtp)) {
-	        throw new InvalidOtpException("Invalid OTP provided.");
-	    }
+		if (!otp.equals(savedOtp)) {
+			throw new InvalidOtpException("Invalid OTP provided.");
+		}
 
-	    User user = userRepo.findById(userId)
-	            .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+		User user = userRepo.findById(userId)
+				.orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
 
-	    user.setStatus(Status.ACTIVE.toString());
-	    user.setUpdatedAt(LocalDateTime.now());
+		user.setStatus(Status.ACTIVE.toString());
+		user.setUpdatedAt(LocalDateTime.now());
 
-	    userRepo.save(user);
+		userRepo.save(user);
 
-	    otpService.removeOtpForUser(userId);
+		otpService.removeOtpForUser(userId);
 	}
 
 	@Override
@@ -102,5 +103,14 @@ public class UserServiceImpl implements UserService {
 		String token = jwtUtils.generateToken(request.getEmail());
 
 		return new LoginResponse(token, "Login Successful !");
+	}
+
+	@Override
+	public void sendPasswordByEmail(String email) throws Exception {
+		User user = userRepo.findByEmail(email);
+		if (user == null) {
+			throw new UserNotFoundException("No user found with the provided email.");
+		}
+		emailService.sendEmail(user.getEmail(), "Your Password", "Your password is: " + user.getPassword());
 	}
 }

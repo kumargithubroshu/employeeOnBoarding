@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.employee.onboarding.userAuthentication.configuration.JwtUtils;
 import com.employee.onboarding.userAuthentication.exception.EmailAlreadyInUseException;
 import com.employee.onboarding.userAuthentication.exception.InvalidOtpException;
+import com.employee.onboarding.userAuthentication.exception.UserNotFoundException;
 import com.employee.onboarding.userAuthentication.exception.UsernameMismatchException;
 import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.TokenRequest;
@@ -81,5 +82,19 @@ public class UserController {
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 		}
+	}
+	
+	@PostMapping("/forgot-password")
+	public ResponseEntity<Message> forgotPassword(@RequestParam String email) {
+	    try {
+	    	userService.sendPasswordByEmail(email);
+	        return ResponseEntity.ok(new Message("Your password has been sent to your registered email."));
+	    } catch (UserNotFoundException e) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(new Message("No user found with the provided email address."));
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(new Message("Failed to retrieve password. Please try again later."));
+	    }
 	}
 }
