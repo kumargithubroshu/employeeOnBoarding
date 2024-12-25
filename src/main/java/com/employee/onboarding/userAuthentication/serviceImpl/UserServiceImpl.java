@@ -1,32 +1,106 @@
 package com.employee.onboarding.userAuthentication.serviceImpl;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.employee.onboarding.userAuthentication.configuration.EmailService;
 import com.employee.onboarding.userAuthentication.configuration.JwtUtils;
+import com.employee.onboarding.userAuthentication.configuration.OtpService;
+import com.employee.onboarding.userAuthentication.entity.User;
+import com.employee.onboarding.userAuthentication.enummeration.Status;
+import com.employee.onboarding.userAuthentication.exception.EmailAlreadyInUseException;
+import com.employee.onboarding.userAuthentication.exception.InvalidOtpException;
 import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
+import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
 import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
+import com.employee.onboarding.userAuthentication.repository.UserRepo;
 import com.employee.onboarding.userAuthentication.service.UserService;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
 	@Autowired
-    private JwtUtils jwtUtils;
+	private JwtUtils jwtUtils;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+	@Autowired
+	private UserRepo userRepo;
 
-    @Override
-    public LoginResponse login(LoginRequest request) {
-        UsernamePasswordAuthenticationToken authInputToken =
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+	@Autowired
+	private OtpService otpService;
 
-        authenticationManager.authenticate(authInputToken);
-        String token = jwtUtils.generateToken(request.getEmail());
+	@Autowired
+	private EmailService emailService;
 
-        return new LoginResponse(token, "Login Successful !");
-    }
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private AuthenticationManager authenticationManager;
+
+	@Override
+	public User rgisterNewUser(UserRequest request) throws Exception {
+		User byEmail = userRepo.findByEmail(request.getEmail());
+		if (byEmail != null) {
+			throw new EmailAlreadyInUseException("Email already in use." + request.getEmail());
+		}
+		User user = new User();
+		user.setUserName(request.getUserName());
+		user.setPassword(passwordEncoder.encode(request.getPassword()));
+		user.setEmail(request.getEmail());
+		user.setRole(request.getRole().toString());
+		user.setPhoneNumber(request.getPhoneNumber());
+		user.setCreatedAt(LocalDateTime.now());
+		user.setStatus(Status.INACTIVE.toString());
+		user.setDescription(request.getDescription());
+
+		User savedUser = userRepo.save(user);
+
+		String otp = generateOtp();
+		otpService.saveOtpForUser(savedUser.getUserId(), otp);
+
+		emailService.sendEmail(savedUser.getEmail(), "OTP Verification",
+				"Your OTP is: " + otp + " and user id is: " + savedUser.getUserId());
+
+		return savedUser;
+	}
+
+	private String generateOtp() {
+		return String.valueOf((int) ((Math.random() * 900000) + 100000)); // 6-digit OTP
+	}
+	
+	@Override
+	public void verifyOtp(Long userId, String otp) {
+
+		String savedOtp = otpService.getOtpForUser(userId);
+
+	    if (!otp.equals(savedOtp)) {
+	        throw new InvalidOtpException("Invalid OTP provided.");
+	    }
+
+	    User user = userRepo.findById(userId)
+	            .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+	    user.setStatus(Status.ACTIVE.toString());
+	    user.setUpdatedAt(LocalDateTime.now());
+
+	    userRepo.save(user);
+
+	    otpService.removeOtpForUser(userId);
+	}
+
+	@Override
+	public LoginResponse login(LoginRequest request) {
+		UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(request.getEmail(),
+				request.getPassword());
+
+		authenticationManager.authenticate(authInputToken);
+		String token = jwtUtils.generateToken(request.getEmail());
+
+		return new LoginResponse(token, "Login Successful !");
+	}
 }
