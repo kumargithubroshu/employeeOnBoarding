@@ -10,7 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.employee.onboarding.userAuthentication.configuration.JwtUtils;
 import com.employee.onboarding.userAuthentication.exception.UsernameMismatchException;
+import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.TokenRequest;
+import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
+import com.employee.onboarding.userAuthentication.service.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")
@@ -18,7 +23,10 @@ public class UserController {
 	
 	@Autowired
     private JwtUtils jwtUtils;
-
+	
+	@Autowired
+	private UserService userService;
+	
 	@PostMapping("/generate-token")
     public ResponseEntity<String> generateToken(@RequestBody TokenRequest tokenRequest) {
 		try {
@@ -35,4 +43,14 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
 		}
     }
+	
+	@PostMapping("/login")
+	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+	    try {
+	    	LoginResponse response = userService.login(request);
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+	    }
+	}
 }
