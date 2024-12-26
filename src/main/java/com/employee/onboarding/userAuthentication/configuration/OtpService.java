@@ -21,7 +21,7 @@ public class OtpService {
         OtpEntry otpEntry = storeOtp.get(userId);
 
         if (otpEntry == null || isOtpExpired(otpEntry)) {
-            storeOtp.remove(userId); // Remove expired OTP
+            storeOtp.remove(userId);
             throw new InvalidOtpException("OTP has expired or does not exist.");
         }
         return otpEntry.getOtp();

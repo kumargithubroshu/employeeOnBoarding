@@ -1,6 +1,7 @@
 package com.employee.onboarding.userAuthentication.serviceImpl;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,8 +42,8 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private EmailService emailService;
 
-//	@Autowired
-//	private PasswordEncoder passwordEncoder;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService {
 		}
 		User user = new User();
 		user.setUserName(request.getUserName());
-		user.setPassword(request.getPassword());
+		user.setPassword(passwordEncoder.encode(request.getPassword()));
 		user.setEmail(request.getEmail());
 		user.setRole(request.getRole().toString());
 		user.setPhoneNumber(request.getPhoneNumber());
@@ -112,10 +113,17 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void sendPasswordByEmail(String email) throws Exception {
 		User user = userRepo.findByEmail(email);
-		if (user == null) {
-			throw new UserNotFoundException("No user found with the provided email.");
-		}
-		emailService.sendEmail(user.getEmail(), "Your Password", "Your password is: " + user.getPassword());
+        if (user == null) {
+            throw new UserNotFoundException("No user found with the provided email.");
+        }
+        String temporaryPassword = generateTemporaryPassword();
+        user.setPassword(temporaryPassword);
+        userRepo.save(user);
+        emailService.sendEmail(user.getEmail(), "Temporary Password", "Your temporary password is: " + temporaryPassword);
+	}
+	
+	private String generateTemporaryPassword() {
+	    return UUID.randomUUID().toString().substring(0, 8); // 8-character random password
 	}
 
 	@Override
@@ -124,10 +132,13 @@ public class UserServiceImpl implements UserService {
 			throw new InvalidPasswordException("New password and confirm password do not match.");
 		}
 		User user = userRepo.findByEmail(request.getEmail());
-		if (!request.getCurrentPassword().equals(user.getPassword())) {
-			throw new InvalidPasswordException("Current password is incorrect.");
+		if (user == null) {
+		  throw new UserNotFoundException("User not found");
 		}
-		user.setPassword(request.getNewPassword());
-		userRepo.save(user);
+        if (!user.getPassword().equals(request.getCurrentPassword())) {
+            throw new InvalidPasswordException("Temporary password is incorrect.");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepo.save(user);
 	}
 }

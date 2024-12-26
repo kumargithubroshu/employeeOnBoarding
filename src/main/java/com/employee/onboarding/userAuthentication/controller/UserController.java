@@ -89,7 +89,7 @@ public class UserController {
 	public ResponseEntity<Message> forgotPassword(@RequestParam String email) {
 	    try {
 	    	userService.sendPasswordByEmail(email);
-	        return ResponseEntity.ok(new Message("Your password has been sent to your registered email."));
+	        return ResponseEntity.ok(new Message("Your temporary password has been sent to your registered email."));
 	    } catch (UserNotFoundException e) {
 	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
 	                .body(new Message("No user found with the provided email address."));

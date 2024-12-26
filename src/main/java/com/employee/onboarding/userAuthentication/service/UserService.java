@@ -17,4 +17,5 @@ public interface UserService {
 	public void sendPasswordByEmail(String email) throws Exception;
 	
 	public void changePassword(ChangePasswordRequest request) throws Exception;
+	
 }
