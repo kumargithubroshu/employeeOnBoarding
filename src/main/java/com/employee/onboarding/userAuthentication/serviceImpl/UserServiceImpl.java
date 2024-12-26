@@ -71,7 +71,6 @@ public class UserServiceImpl implements UserService {
 
 		emailService.sendEmail(savedUser.getEmail(), "OTP Verification",
 				"Your OTP is: " + otp + " and user id is: " + savedUser.getUserId());
-
 		return savedUser;
 	}
 
@@ -81,19 +80,16 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void verifyOtp(Long userId, String otp) {
-
+		
 		String savedOtp = otpService.getOtpForUser(userId);
-
 		if (!otp.equals(savedOtp)) {
 			throw new InvalidOtpException("Invalid OTP provided.");
 		}
-
 		User user = userRepo.findById(userId)
 				.orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
 
 		user.setStatus(Status.ACTIVE.toString());
 		user.setUpdatedAt(LocalDateTime.now());
-
 		userRepo.save(user);
 
 		otpService.removeOtpForUser(userId);
