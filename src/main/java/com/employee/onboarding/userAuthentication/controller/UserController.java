@@ -22,6 +22,7 @@ import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
 import com.employee.onboarding.userAuthentication.pojoResponse.Message;
 import com.employee.onboarding.userAuthentication.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
 @RestController
@@ -34,6 +35,7 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
+	@Operation(summary = "Generate a JWT token for a valid username")
 	@PostMapping("/generate-token")
 	public ResponseEntity<Message> generateToken(@RequestBody TokenRequest tokenRequest) {
 		try {
@@ -51,6 +53,7 @@ public class UserController {
 		}
 	}
 
+	@Operation(summary = "Register a new user")
 	@PostMapping("/register")
 	public ResponseEntity<Message> registerNewUser(@RequestBody UserRequest request) {
 		try {
@@ -65,6 +68,7 @@ public class UserController {
 		}
 	}
 	
+	@Operation(summary = "Verify a user's OTP")
 	@PostMapping("/verify-otp")
     public ResponseEntity<Message> verifyOtp(@RequestParam Long userId, @RequestParam String otp) {
         try {
@@ -75,6 +79,7 @@ public class UserController {
         }
     }
 
+	@Operation(summary = "Login a user with valid credentials")
 	@PostMapping("/login")
 	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
 		try {
@@ -85,6 +90,7 @@ public class UserController {
 		}
 	}
 	
+	@Operation(summary = "Request a temporary password to be sent to the registered email")
 	@PostMapping("/forgot-password")
 	public ResponseEntity<Message> forgotPassword(@RequestParam String email) {
 	    try {
@@ -99,6 +105,7 @@ public class UserController {
 	    }
 	}
 	
+	@Operation(summary = "Change the user's password")
 	@PostMapping("/change-password")
 	public ResponseEntity<Message> changePassword(@RequestBody ChangePasswordRequest request) {
 	    try {

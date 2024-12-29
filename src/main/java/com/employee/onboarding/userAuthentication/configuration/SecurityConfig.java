@@ -31,15 +31,20 @@ public class SecurityConfig {
                 .and()
                 .build();
     }
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf().disable()
             .authorizeHttpRequests()
+            // Allow unauthenticated access to Swagger
             .requestMatchers(
-                "/api/users/register", 
-                "/api/users/verify-otp", 
-                "/api/users/login", 
+                "/v3/api-docs/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/api/users/register",
+                "/api/users/verify-otp",
+                "/api/users/login",
                 "/api/users/generate-token",
                 "/api/users/forgot-password",
                 "/api/users/change-password"
