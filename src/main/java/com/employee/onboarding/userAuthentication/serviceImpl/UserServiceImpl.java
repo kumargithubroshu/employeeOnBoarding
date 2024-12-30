@@ -6,8 +6,6 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +21,7 @@ import com.employee.onboarding.userAuthentication.exception.UserNotFoundExceptio
 import com.employee.onboarding.userAuthentication.pojoRequest.ChangePasswordRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
+import com.employee.onboarding.userAuthentication.pojoRequest.UserUpdateRequest;
 import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
 import com.employee.onboarding.userAuthentication.repository.UserRepo;
 import com.employee.onboarding.userAuthentication.service.UserService;
@@ -80,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void verifyOtp(Long userId, String otp) {
-		
+
 		String savedOtp = otpService.getOtpForUser(userId);
 		if (!otp.equals(savedOtp)) {
 			throw new InvalidOtpException("Invalid OTP provided.");
@@ -109,17 +108,18 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void sendPasswordByEmail(String email) throws Exception {
 		User user = userRepo.findByEmail(email);
-        if (user == null) {
-            throw new UserNotFoundException("No user found with the provided email.");
-        }
-        String temporaryPassword = generateTemporaryPassword();
-        user.setPassword(temporaryPassword);
-        userRepo.save(user);
-        emailService.sendEmail(user.getEmail(), "Temporary Password", "Your temporary password is: " + temporaryPassword);
+		if (user == null) {
+			throw new UserNotFoundException("No user found with the provided email.");
+		}
+		String temporaryPassword = generateTemporaryPassword();
+		user.setPassword(temporaryPassword);
+		userRepo.save(user);
+		emailService.sendEmail(user.getEmail(), "Temporary Password",
+				"Your temporary password is: " + temporaryPassword);
 	}
-	
+
 	private String generateTemporaryPassword() {
-	    return UUID.randomUUID().toString().substring(0, 8); // 8-character random password
+		return UUID.randomUUID().toString().substring(0, 8); // 8-character random password
 	}
 
 	@Override
@@ -129,12 +129,35 @@ public class UserServiceImpl implements UserService {
 		}
 		User user = userRepo.findByEmail(request.getEmail());
 		if (user == null) {
-		  throw new UserNotFoundException("User not found");
+			throw new UserNotFoundException("User not found");
 		}
-        if (!user.getPassword().equals(request.getCurrentPassword())) {
-            throw new InvalidPasswordException("Temporary password is incorrect.");
-        }
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userRepo.save(user);
+		if (!user.getPassword().equals(request.getCurrentPassword())) {
+			throw new InvalidPasswordException("Temporary password is incorrect.");
+		}
+		user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+		userRepo.save(user);
+	}
+
+	@Override
+	public void updateUserDetailsByEmail(String emailId, UserUpdateRequest updateRequest) {
+		User user = userRepo.findByEmail(emailId);
+		if (user == null) {
+			throw new UserNotFoundException("User not found");
+		}
+
+		if (updateRequest.getName() != null) {
+			user.setUserName(updateRequest.getName());
+		}
+		if (updateRequest.getRole() != null) {
+			user.setRole(updateRequest.getRole().toString());
+		}
+		if (updateRequest.getPhoneNumber() != null) {
+			user.setPhoneNumber(updateRequest.getPhoneNumber());
+		}
+		if (updateRequest.getDescription() != null) {
+			user.setDescription(updateRequest.getDescription());
+		}
+
+		userRepo.save(user);
 	}
 }

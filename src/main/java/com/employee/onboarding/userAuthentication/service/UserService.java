@@ -4,6 +4,7 @@ import com.employee.onboarding.userAuthentication.entity.User;
 import com.employee.onboarding.userAuthentication.pojoRequest.ChangePasswordRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
+import com.employee.onboarding.userAuthentication.pojoRequest.UserUpdateRequest;
 import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
 
 public interface UserService {
@@ -17,5 +18,7 @@ public interface UserService {
 	public void sendPasswordByEmail(String email) throws Exception;
 	
 	public void changePassword(ChangePasswordRequest request) throws Exception;
+	
+	public void updateUserDetailsByEmail(String emailId, UserUpdateRequest updateRequest);
 	
 }

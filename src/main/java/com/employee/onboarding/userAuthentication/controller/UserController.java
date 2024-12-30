@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,7 @@ import com.employee.onboarding.userAuthentication.pojoRequest.ChangePasswordRequ
 import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.TokenRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
+import com.employee.onboarding.userAuthentication.pojoRequest.UserUpdateRequest;
 import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
 import com.employee.onboarding.userAuthentication.pojoResponse.Message;
 import com.employee.onboarding.userAuthentication.service.UserService;
@@ -114,6 +116,21 @@ public class UserController {
 	    } catch (Exception e) {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 	                .body(new Message("Failed to update password. Please try again later."));
+	    }
+	}
+	
+	@Operation(summary = "Update the user's details based on email")
+	@PutMapping("/update")
+	public ResponseEntity<Message> updateUserDetails(@RequestParam String emailId, @ParameterObject UserUpdateRequest updateRequest) {
+	    try {
+	        userService.updateUserDetailsByEmail(emailId, updateRequest);
+	        return ResponseEntity.ok(new Message("User details updated successfully."));
+	    } catch (UserNotFoundException e) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(new Message("User not found with the provided email ID."));
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(new Message("Failed to update user details. Please try again later."));
 	    }
 	}
 }

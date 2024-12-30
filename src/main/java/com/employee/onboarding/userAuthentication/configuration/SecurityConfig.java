@@ -47,7 +47,8 @@ public class SecurityConfig {
                 "/api/users/login",
                 "/api/users/generate-token",
                 "/api/users/forgot-password",
-                "/api/users/change-password"
+                "/api/users/change-password",
+                "/api/users/update"
             ).permitAll()
             .anyRequest().authenticated()
             .and()
