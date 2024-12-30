@@ -80,6 +80,21 @@ public class UserController {
             return ResponseEntity.badRequest().body(new Message(e.getMessage()));
         }
     }
+	
+	@Operation(summary = "Resend OTP for user registration verification")
+	@PostMapping("/resend-otp")
+	public ResponseEntity<Message> resendOtp(@RequestParam String email) {
+	    try {
+	        userService.resendOtp(email);
+	        return ResponseEntity.ok(new Message("OTP has been resent successfully to your registered email."));
+	    } catch (UserNotFoundException e) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(new Message("No user found with the provided email."));
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(new Message("Failed to resend OTP. Please try again later."));
+	    }
+	}
 
 	@Operation(summary = "Login a user with valid credentials")
 	@PostMapping("/login")

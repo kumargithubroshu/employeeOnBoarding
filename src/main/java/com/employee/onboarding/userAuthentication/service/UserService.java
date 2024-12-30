@@ -15,6 +15,8 @@ public interface UserService {
 	
 	public void verifyOtp(Long userId, String otp);
 	
+	public void resendOtp(String email) throws Exception;
+	
 	public void sendPasswordByEmail(String email) throws Exception;
 	
 	public void changePassword(ChangePasswordRequest request) throws Exception;

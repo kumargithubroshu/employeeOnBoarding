@@ -95,6 +95,23 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public void resendOtp(String email) throws Exception {
+		User user = userRepo.findByEmail(email);
+		if (user == null) {
+			throw new UserNotFoundException("No user found with the provided email.");
+		}
+		if (!Status.INACTIVE.toString().equals(user.getStatus())) {
+			throw new IllegalStateException("User is already verified and active.");
+		}
+		
+		String otp = generateOtp();
+		otpService.saveOtpForUser(user.getUserId(), otp);
+
+		emailService.sendEmail(user.getEmail(), "Resend OTP Verification",
+				"Your new OTP is: " + otp + " and userId is: "+ user.getUserId() +".  Please verify within 5 minutes.");
+	}
+
+	@Override
 	public LoginResponse login(LoginRequest request) {
 		UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(request.getEmail(),
 				request.getPassword());
