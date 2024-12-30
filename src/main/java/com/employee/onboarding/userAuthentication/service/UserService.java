@@ -1,6 +1,7 @@
 package com.employee.onboarding.userAuthentication.service;
 
 import com.employee.onboarding.userAuthentication.entity.User;
+import com.employee.onboarding.userAuthentication.enummeration.Role;
 import com.employee.onboarding.userAuthentication.pojoRequest.ChangePasswordRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
@@ -16,6 +17,8 @@ public interface UserService {
 	public void verifyOtp(Long userId, String otp);
 	
 	public void resendOtp(String email) throws Exception;
+	
+	public void assignRoleToUser(String email, Role role) throws Exception;
 	
 	public void sendPasswordByEmail(String email) throws Exception;
 	

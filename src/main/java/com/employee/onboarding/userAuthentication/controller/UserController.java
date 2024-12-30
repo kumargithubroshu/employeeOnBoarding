@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.employee.onboarding.userAuthentication.configuration.JwtUtils;
+import com.employee.onboarding.userAuthentication.enummeration.Role;
 import com.employee.onboarding.userAuthentication.exception.EmailAlreadyInUseException;
 import com.employee.onboarding.userAuthentication.exception.InvalidOtpException;
 import com.employee.onboarding.userAuthentication.exception.UserNotFoundException;
@@ -69,31 +70,46 @@ public class UserController {
 					.body(new Message("Registration failed. Please try again."));
 		}
 	}
-	
+
 	@Operation(summary = "Verify a user's OTP")
 	@PostMapping("/verify-otp")
-    public ResponseEntity<Message> verifyOtp(@RequestParam Long userId, @RequestParam String otp) {
-        try {
-            userService.verifyOtp(userId, otp);
-            return ResponseEntity.ok(new Message("User verified successfully and status set to ACTIVE."));
-        } catch (InvalidOtpException e) {
-            return ResponseEntity.badRequest().body(new Message(e.getMessage()));
-        }
-    }
-	
+	public ResponseEntity<Message> verifyOtp(@RequestParam Long userId, @RequestParam String otp) {
+		try {
+			userService.verifyOtp(userId, otp);
+			return ResponseEntity.ok(new Message("User verified successfully and status set to ACTIVE."));
+		} catch (InvalidOtpException e) {
+			return ResponseEntity.badRequest().body(new Message(e.getMessage()));
+		}
+	}
+
 	@Operation(summary = "Resend OTP for user registration verification")
 	@PostMapping("/resend-otp")
 	public ResponseEntity<Message> resendOtp(@RequestParam String email) {
-	    try {
-	        userService.resendOtp(email);
-	        return ResponseEntity.ok(new Message("OTP has been resent successfully to your registered email."));
-	    } catch (UserNotFoundException e) {
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-	                .body(new Message("No user found with the provided email."));
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(new Message("Failed to resend OTP. Please try again later."));
-	    }
+		try {
+			userService.resendOtp(email);
+			return ResponseEntity.ok(new Message("OTP has been resent successfully to your registered email."));
+		} catch (UserNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(new Message("No user found with the provided email."));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new Message("Failed to resend OTP. Please try again later."));
+		}
+	}
+
+	@Operation(summary = "Assign a role to a user")
+	@PutMapping("/assign-role")
+	public ResponseEntity<Message> assignRoleToUser(@RequestParam String email, @RequestParam Role role) {
+		try {
+			userService.assignRoleToUser(email, role);
+			return ResponseEntity.ok(new Message("Role assigned successfully."));
+		} catch (UserNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(new Message("User not found with the provided email."));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new Message("Failed to assign role. Please try again later."));
+		}
 	}
 
 	@Operation(summary = "Login a user with valid credentials")
@@ -106,46 +122,47 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 		}
 	}
-	
+
 	@Operation(summary = "Request a temporary password to be sent to the registered email")
 	@PostMapping("/forgot-password")
 	public ResponseEntity<Message> forgotPassword(@RequestParam String email) {
-	    try {
-	    	userService.sendPasswordByEmail(email);
-	        return ResponseEntity.ok(new Message("Your temporary password has been sent to your registered email."));
-	    } catch (UserNotFoundException e) {
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-	                .body(new Message("No user found with the provided email address."));
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(new Message("Failed to retrieve password. Please try again later."));
-	    }
+		try {
+			userService.sendPasswordByEmail(email);
+			return ResponseEntity.ok(new Message("Your temporary password has been sent to your registered email."));
+		} catch (UserNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(new Message("No user found with the provided email address."));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new Message("Failed to retrieve password. Please try again later."));
+		}
 	}
-	
+
 	@Operation(summary = "Change the user's password")
 	@PostMapping("/change-password")
 	public ResponseEntity<Message> changePassword(@ParameterObject ChangePasswordRequest request) {
-	    try {
-	        userService.changePassword(request);
-	        return ResponseEntity.ok(new Message("Password updated successfully."));
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(new Message("Failed to update password. Please try again later."));
-	    }
+		try {
+			userService.changePassword(request);
+			return ResponseEntity.ok(new Message("Password updated successfully."));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new Message("Failed to update password. Please try again later."));
+		}
 	}
-	
+
 	@Operation(summary = "Update the user's details based on email")
 	@PutMapping("/update")
-	public ResponseEntity<Message> updateUserDetails(@RequestParam String emailId, @ParameterObject UserUpdateRequest updateRequest) {
-	    try {
-	        userService.updateUserDetailsByEmail(emailId, updateRequest);
-	        return ResponseEntity.ok(new Message("User details updated successfully."));
-	    } catch (UserNotFoundException e) {
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-	                .body(new Message("User not found with the provided email ID."));
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(new Message("Failed to update user details. Please try again later."));
-	    }
+	public ResponseEntity<Message> updateUserDetails(@RequestParam String emailId,
+			@ParameterObject UserUpdateRequest updateRequest) {
+		try {
+			userService.updateUserDetailsByEmail(emailId, updateRequest);
+			return ResponseEntity.ok(new Message("User details updated successfully."));
+		} catch (UserNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(new Message("User not found with the provided email ID."));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new Message("Failed to update user details. Please try again later."));
+		}
 	}
 }

@@ -13,6 +13,7 @@ import com.employee.onboarding.userAuthentication.configuration.EmailService;
 import com.employee.onboarding.userAuthentication.configuration.JwtUtils;
 import com.employee.onboarding.userAuthentication.configuration.OtpService;
 import com.employee.onboarding.userAuthentication.entity.User;
+import com.employee.onboarding.userAuthentication.enummeration.Role;
 import com.employee.onboarding.userAuthentication.enummeration.Status;
 import com.employee.onboarding.userAuthentication.exception.EmailAlreadyInUseException;
 import com.employee.onboarding.userAuthentication.exception.InvalidOtpException;
@@ -57,7 +58,6 @@ public class UserServiceImpl implements UserService {
 		user.setUserName(request.getUserName());
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 		user.setEmail(request.getEmail());
-		user.setRole(request.getRole().toString());
 		user.setPhoneNumber(request.getPhoneNumber());
 		user.setCreatedAt(LocalDateTime.now());
 		user.setStatus(Status.INACTIVE.toString());
@@ -109,6 +109,18 @@ public class UserServiceImpl implements UserService {
 
 		emailService.sendEmail(user.getEmail(), "Resend OTP Verification",
 				"Your new OTP is: " + otp + " and userId is: "+ user.getUserId() +".  Please verify within 5 minutes.");
+	}
+	
+	@Override
+	public void assignRoleToUser(String email, Role role) throws Exception {
+	    User user = userRepo.findByEmail(email);
+	    if (user == null) {
+	        throw new UserNotFoundException("User not found with the provided email: " + email);
+	    }
+	    
+	    user.setRole(role.toString());
+	    user.setUpdatedAt(LocalDateTime.now());
+	    userRepo.save(user);
 	}
 
 	@Override
