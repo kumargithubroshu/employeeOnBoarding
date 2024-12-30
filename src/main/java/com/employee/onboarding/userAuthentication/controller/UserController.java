@@ -1,10 +1,10 @@
 package com.employee.onboarding.userAuthentication.controller;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,7 +37,7 @@ public class UserController {
 
 	@Operation(summary = "Generate a JWT token for a valid username")
 	@PostMapping("/generate-token")
-	public ResponseEntity<Message> generateToken(@RequestBody TokenRequest tokenRequest) {
+	public ResponseEntity<Message> generateToken(@ParameterObject TokenRequest tokenRequest) {
 		try {
 			if (tokenRequest.getUsername() == null || tokenRequest.getUsername().isBlank()) {
 				throw new IllegalArgumentException("Username cannot be empty or null");
@@ -55,7 +55,7 @@ public class UserController {
 
 	@Operation(summary = "Register a new user")
 	@PostMapping("/register")
-	public ResponseEntity<Message> registerNewUser(@RequestBody UserRequest request) {
+	public ResponseEntity<Message> registerNewUser(@ParameterObject UserRequest request) {
 		try {
 			userService.rgisterNewUser(request);
 			return ResponseEntity.ok(new Message("User registered successfully. Check your email for OTP."));
@@ -81,7 +81,7 @@ public class UserController {
 
 	@Operation(summary = "Login a user with valid credentials")
 	@PostMapping("/login")
-	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+	public ResponseEntity<LoginResponse> login(@ParameterObject @Valid LoginRequest request) {
 		try {
 			LoginResponse response = userService.login(request);
 			return ResponseEntity.ok(response);
@@ -107,7 +107,7 @@ public class UserController {
 	
 	@Operation(summary = "Change the user's password")
 	@PostMapping("/change-password")
-	public ResponseEntity<Message> changePassword(@RequestBody ChangePasswordRequest request) {
+	public ResponseEntity<Message> changePassword(@ParameterObject ChangePasswordRequest request) {
 	    try {
 	        userService.changePassword(request);
 	        return ResponseEntity.ok(new Message("Password updated successfully."));
