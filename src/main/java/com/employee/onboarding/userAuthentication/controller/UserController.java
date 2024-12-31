@@ -197,7 +197,7 @@ public class UserController {
 		}
 	}
 
-	@Operation(summary = "Get all users by role")
+	@Operation(summary = "Get all users details by their attributes")
 	@GetMapping("/byRole")
 	public ResponseEntity<List<UserResponse>> getUsersByRole(@ParameterObject SearchAndListUserRequest role) {
 	    try {
