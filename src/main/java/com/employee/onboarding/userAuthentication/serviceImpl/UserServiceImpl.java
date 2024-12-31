@@ -24,6 +24,7 @@ import com.employee.onboarding.userAuthentication.exception.InvalidPasswordExcep
 import com.employee.onboarding.userAuthentication.exception.UserNotFoundException;
 import com.employee.onboarding.userAuthentication.pojoRequest.ChangePasswordRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
+import com.employee.onboarding.userAuthentication.pojoRequest.SearchAndListUserRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserUpdateRequest;
 import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
@@ -219,7 +220,7 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public List<UserResponse> getUsersByRole(Role role) {
+	public List<UserResponse> getUsersByRole(SearchAndListUserRequest role) {
         Specification<User> roleSpec = hasRole(role);
         List<User> users = userRepo.findAll(roleSpec);
 
@@ -235,9 +236,12 @@ public class UserServiceImpl implements UserService {
             .toList();
     }
 	
-	public static Specification<User> hasRole(Role role) {
+	public static Specification<User> hasRole(SearchAndListUserRequest role) {
+		if (role == null || role.getFilterRole() == null) {
+	        return (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
+	    }
         return (root, query, criteriaBuilder) -> {
-            Predicate predicate = criteriaBuilder.equal(root.get("role"), role.name());
+            Predicate predicate = criteriaBuilder.equal(root.get("role"), role.getFilterRole().name());
             return predicate;
         };
     }

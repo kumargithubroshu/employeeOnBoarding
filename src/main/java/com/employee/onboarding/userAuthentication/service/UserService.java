@@ -7,6 +7,7 @@ import com.employee.onboarding.userAuthentication.enummeration.Role;
 import com.employee.onboarding.userAuthentication.exception.UserNotFoundException;
 import com.employee.onboarding.userAuthentication.pojoRequest.ChangePasswordRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
+import com.employee.onboarding.userAuthentication.pojoRequest.SearchAndListUserRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserUpdateRequest;
 import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
@@ -34,6 +35,6 @@ public interface UserService {
 	
 	public UserResponse getUserById(Long userId) throws UserNotFoundException ;
 	
-	public List<UserResponse> getUsersByRole(Role role);
+	public List<UserResponse> getUsersByRole(SearchAndListUserRequest role);
 	
 }

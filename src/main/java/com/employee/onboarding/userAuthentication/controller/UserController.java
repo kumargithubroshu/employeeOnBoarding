@@ -23,6 +23,7 @@ import com.employee.onboarding.userAuthentication.exception.UserNotFoundExceptio
 import com.employee.onboarding.userAuthentication.exception.UsernameMismatchException;
 import com.employee.onboarding.userAuthentication.pojoRequest.ChangePasswordRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
+import com.employee.onboarding.userAuthentication.pojoRequest.SearchAndListUserRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.TokenRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserUpdateRequest;
@@ -198,8 +199,7 @@ public class UserController {
 
 	@Operation(summary = "Get all users by role")
 	@GetMapping("/byRole")
-	public ResponseEntity<List<UserResponse>> getUsersByRole(
-	        @RequestParam Role role) {
+	public ResponseEntity<List<UserResponse>> getUsersByRole(@ParameterObject SearchAndListUserRequest role) {
 	    try {
 	        List<UserResponse> users = userService.getUsersByRole(role);
 	        return ResponseEntity.ok(users);
