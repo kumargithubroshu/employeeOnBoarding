@@ -24,6 +24,7 @@ import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserUpdateRequest;
 import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
+import com.employee.onboarding.userAuthentication.pojoResponse.UserResponse;
 import com.employee.onboarding.userAuthentication.repository.UserRepo;
 import com.employee.onboarding.userAuthentication.service.UserService;
 
@@ -103,24 +104,24 @@ public class UserServiceImpl implements UserService {
 		if (!Status.INACTIVE.toString().equals(user.getStatus())) {
 			throw new IllegalStateException("User is already verified and active.");
 		}
-		
+
 		String otp = generateOtp();
 		otpService.saveOtpForUser(user.getUserId(), otp);
 
-		emailService.sendEmail(user.getEmail(), "Resend OTP Verification",
-				"Your new OTP is: " + otp + " and userId is: "+ user.getUserId() +".  Please verify within 5 minutes.");
+		emailService.sendEmail(user.getEmail(), "Resend OTP Verification", "Your new OTP is: " + otp
+				+ " and userId is: " + user.getUserId() + ".  Please verify within 5 minutes.");
 	}
-	
+
 	@Override
 	public void assignRoleToUser(String email, Role role) throws Exception {
-	    User user = userRepo.findByEmail(email);
-	    if (user == null) {
-	        throw new UserNotFoundException("User not found with the provided email: " + email);
-	    }
-	    
-	    user.setRole(role.toString());
-	    user.setUpdatedAt(LocalDateTime.now());
-	    userRepo.save(user);
+		User user = userRepo.findByEmail(email);
+		if (user == null) {
+			throw new UserNotFoundException("User not found with the provided email: " + email);
+		}
+
+		user.setRole(role.toString());
+		user.setUpdatedAt(LocalDateTime.now());
+		userRepo.save(user);
 	}
 
 	@Override
@@ -188,5 +189,15 @@ public class UserServiceImpl implements UserService {
 		}
 
 		userRepo.save(user);
+	}
+
+	@Override
+	public UserResponse getUserByEmail(String email) throws UserNotFoundException {
+		User user = userRepo.findByEmail(email);
+		if (user == null) {
+			throw new UserNotFoundException("User not found with email: " + email);
+		}
+		return new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getPhoneNumber(),
+				user.getRole(), user.getStatus());
 	}
 }

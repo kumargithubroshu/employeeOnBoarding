@@ -50,7 +50,8 @@ public class SecurityConfig {
                 "/api/users/change-password",
                 "/api/users/update",
                 "/api/users/resend-otp",
-                "/api/users/assign-role"
+                "/api/users/assign-role",
+                "/api/users/by-email"
             ).permitAll()
             .anyRequest().authenticated()
             .and()

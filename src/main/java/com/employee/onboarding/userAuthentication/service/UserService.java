@@ -2,11 +2,13 @@ package com.employee.onboarding.userAuthentication.service;
 
 import com.employee.onboarding.userAuthentication.entity.User;
 import com.employee.onboarding.userAuthentication.enummeration.Role;
+import com.employee.onboarding.userAuthentication.exception.UserNotFoundException;
 import com.employee.onboarding.userAuthentication.pojoRequest.ChangePasswordRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.LoginRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserUpdateRequest;
 import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
+import com.employee.onboarding.userAuthentication.pojoResponse.UserResponse;
 
 public interface UserService {
 	
@@ -25,5 +27,7 @@ public interface UserService {
 	public void changePassword(ChangePasswordRequest request) throws Exception;
 	
 	public void updateUserDetailsByEmail(String emailId, UserUpdateRequest updateRequest);
+	
+	public UserResponse getUserByEmail(String email) throws UserNotFoundException;
 	
 }

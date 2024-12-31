@@ -4,6 +4,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,7 @@ import com.employee.onboarding.userAuthentication.pojoRequest.UserRequest;
 import com.employee.onboarding.userAuthentication.pojoRequest.UserUpdateRequest;
 import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
 import com.employee.onboarding.userAuthentication.pojoResponse.Message;
+import com.employee.onboarding.userAuthentication.pojoResponse.UserResponse;
 import com.employee.onboarding.userAuthentication.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -163,6 +165,21 @@ public class UserController {
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(new Message("Failed to update user details. Please try again later."));
+		}
+	}
+
+	@Operation(summary = "Get user details by email ID")
+	@GetMapping("/by-email")
+	public ResponseEntity<UserResponse> getUserByEmail(@RequestParam String email) {
+		try {
+			UserResponse user = userService.getUserByEmail(email);
+			return ResponseEntity.ok(user);
+		} catch (UserNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(new UserResponse("User not found with email: " + email));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new UserResponse("An error occurred. Please try again later."));
 		}
 	}
 }
