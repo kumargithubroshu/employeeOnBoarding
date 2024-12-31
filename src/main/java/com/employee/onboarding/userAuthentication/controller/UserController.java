@@ -199,9 +199,9 @@ public class UserController {
 
 	@Operation(summary = "Get all users details by their attributes")
 	@GetMapping("/byRole")
-	public ResponseEntity<List<UserResponse>> getUsersByRole(@ParameterObject SearchAndListUserRequest role) {
+	public ResponseEntity<List<UserResponse>> getUsersByAttributes(@ParameterObject SearchAndListUserRequest request) {
 	    try {
-	        List<UserResponse> users = userService.getUsersByRole(role);
+	        List<UserResponse> users = userService.getUsersByAttribute(request);
 	        return ResponseEntity.ok(users);
 	    } catch (Exception e) {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

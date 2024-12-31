@@ -220,8 +220,8 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public List<UserResponse> getUsersByRole(SearchAndListUserRequest role) {
-        Specification<User> roleSpec = hasRole(role);
+	public List<UserResponse> getUsersByAttribute(SearchAndListUserRequest request) {
+        Specification<User> roleSpec = hasRole(request);
         List<User> users = userRepo.findAll(roleSpec);
 
         return users.stream()
@@ -236,12 +236,12 @@ public class UserServiceImpl implements UserService {
             .toList();
     }
 	
-	public static Specification<User> hasRole(SearchAndListUserRequest role) {
-		if (role == null || role.getFilterRole() == null) {
+	public static Specification<User> hasRole(SearchAndListUserRequest request) {
+		if (request == null || request.getFilterRole() == null) {
 	        return (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
 	    }
         return (root, query, criteriaBuilder) -> {
-            Predicate predicate = criteriaBuilder.equal(root.get("role"), role.getFilterRole().name());
+            Predicate predicate = criteriaBuilder.equal(root.get("role"), request.getFilterRole().name());
             return predicate;
         };
     }

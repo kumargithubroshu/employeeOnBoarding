@@ -35,6 +35,6 @@ public interface UserService {
 	
 	public UserResponse getUserById(Long userId) throws UserNotFoundException ;
 	
-	public List<UserResponse> getUsersByRole(SearchAndListUserRequest role);
+	public List<UserResponse> getUsersByAttribute(SearchAndListUserRequest request);
 	
 }
