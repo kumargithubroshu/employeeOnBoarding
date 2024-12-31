@@ -1,5 +1,7 @@
 package com.employee.onboarding.userAuthentication.service;
 
+import java.util.List;
+
 import com.employee.onboarding.userAuthentication.entity.User;
 import com.employee.onboarding.userAuthentication.enummeration.Role;
 import com.employee.onboarding.userAuthentication.exception.UserNotFoundException;
@@ -31,5 +33,7 @@ public interface UserService {
 	public UserResponse getUserByEmail(String email) throws UserNotFoundException;
 	
 	public UserResponse getUserById(Long userId) throws UserNotFoundException ;
+	
+	public List<UserResponse> getUsersByRole(Role role);
 	
 }

@@ -1,10 +1,12 @@
 package com.employee.onboarding.userAuthentication.serviceImpl;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +30,8 @@ import com.employee.onboarding.userAuthentication.pojoResponse.LoginResponse;
 import com.employee.onboarding.userAuthentication.pojoResponse.UserResponse;
 import com.employee.onboarding.userAuthentication.repository.UserRepo;
 import com.employee.onboarding.userAuthentication.service.UserService;
+
+import jakarta.persistence.criteria.Predicate;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -213,4 +217,28 @@ public class UserServiceImpl implements UserService {
 		return new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getPhoneNumber(),
 				user.getRole(), user.getStatus());
 	}
+	
+	@Override
+	public List<UserResponse> getUsersByRole(Role role) {
+        Specification<User> roleSpec = hasRole(role);
+        List<User> users = userRepo.findAll(roleSpec);
+
+        return users.stream()
+            .map(user -> new UserResponse(
+                user.getUserId(),
+                user.getUserName(),
+                user.getEmail(),
+                user.getPhoneNumber(),
+                user.getRole(),
+                user.getStatus()
+            ))
+            .toList();
+    }
+	
+	public static Specification<User> hasRole(Role role) {
+        return (root, query, criteriaBuilder) -> {
+            Predicate predicate = criteriaBuilder.equal(root.get("role"), role.name());
+            return predicate;
+        };
+    }
 }

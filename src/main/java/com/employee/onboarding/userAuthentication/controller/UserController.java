@@ -1,5 +1,8 @@
 package com.employee.onboarding.userAuthentication.controller;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -191,5 +194,18 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 					.body(new UserResponse("User not found with ID: " + userId));
 		}
+	}
+
+	@Operation(summary = "Get all users by role")
+	@GetMapping("/byRole")
+	public ResponseEntity<List<UserResponse>> getUsersByRole(
+	        @RequestParam Role role) {
+	    try {
+	        List<UserResponse> users = userService.getUsersByRole(role);
+	        return ResponseEntity.ok(users);
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(Collections.singletonList(new UserResponse("Failed to fetch user details.")));
+	    }
 	}
 }

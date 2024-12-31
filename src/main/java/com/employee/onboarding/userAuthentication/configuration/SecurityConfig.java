@@ -52,7 +52,8 @@ public class SecurityConfig {
                 "/api/users/resend-otp",
                 "/api/users/assign-role",
                 "/api/users/by-email",
-                "/api/users/{userId}"
+                "/api/users/{userId}",
+                "/api/users/byRole"
             ).permitAll()
             .anyRequest().authenticated()
             .and()
