@@ -1,6 +1,7 @@
 package com.employee.onboarding.userAuthentication.serviceImpl;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,6 +198,18 @@ public class UserServiceImpl implements UserService {
 		if (user == null) {
 			throw new UserNotFoundException("User not found with email: " + email);
 		}
+		return new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getPhoneNumber(),
+				user.getRole(), user.getStatus());
+	}
+	
+	@Override
+	public UserResponse getUserById(Long userId) throws UserNotFoundException {
+		Optional<User> byId = userRepo.findById(userId);
+		if(!byId.isPresent())
+		{
+			throw new UserNotFoundException("User not found with ID: " + userId);
+		}
+		User user = byId.get();
 		return new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getPhoneNumber(),
 				user.getRole(), user.getStatus());
 	}

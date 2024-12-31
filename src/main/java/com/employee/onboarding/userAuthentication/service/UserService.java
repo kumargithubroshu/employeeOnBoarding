@@ -30,4 +30,6 @@ public interface UserService {
 	
 	public UserResponse getUserByEmail(String email) throws UserNotFoundException;
 	
+	public UserResponse getUserById(Long userId) throws UserNotFoundException ;
+	
 }

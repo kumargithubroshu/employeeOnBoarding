@@ -51,7 +51,8 @@ public class SecurityConfig {
                 "/api/users/update",
                 "/api/users/resend-otp",
                 "/api/users/assign-role",
-                "/api/users/by-email"
+                "/api/users/by-email",
+                "/api/users/{userId}"
             ).permitAll()
             .anyRequest().authenticated()
             .and()

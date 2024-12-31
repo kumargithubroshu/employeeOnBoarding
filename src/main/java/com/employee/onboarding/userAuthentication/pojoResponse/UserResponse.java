@@ -1,13 +1,14 @@
 package com.employee.onboarding.userAuthentication.pojoResponse;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-//@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserResponse {
 
 	private Long userId;
@@ -17,7 +18,7 @@ public class UserResponse {
     private String role;
     private String status;
     
-    @JsonIgnore
+//    @JsonIgnore
     private String message;
 
     public UserResponse(String message) {

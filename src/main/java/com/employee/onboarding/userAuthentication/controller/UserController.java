@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -177,9 +178,18 @@ public class UserController {
 		} catch (UserNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 					.body(new UserResponse("User not found with email: " + email));
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(new UserResponse("An error occurred. Please try again later."));
+		}
+	}
+
+	@Operation(summary = "Get user details by userId")
+	@GetMapping("/{userId}")
+	public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
+		try {
+			UserResponse userResponse = userService.getUserById(userId);
+			return ResponseEntity.ok(userResponse);
+		} catch (UserNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(new UserResponse("User not found with ID: " + userId));
 		}
 	}
 }
