@@ -208,4 +208,16 @@ public class UserController {
 	                .body(Collections.singletonList(new UserResponse("Failed to fetch user details.")));
 	    }
 	}
+	
+	@Operation(summary = "Get all users")
+	@GetMapping("/all")
+	public ResponseEntity<List<UserResponse>> getAllUsers() {
+	    try {
+	        List<UserResponse> users = userService.getAllUsers();
+	        return ResponseEntity.ok(users);
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(Collections.singletonList(new UserResponse("Failed to fetch user details.")));
+	    }
+	}
 }

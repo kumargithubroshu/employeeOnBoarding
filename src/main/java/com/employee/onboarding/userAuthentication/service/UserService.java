@@ -37,4 +37,6 @@ public interface UserService {
 	
 	public List<UserResponse> getUsersByAttribute(SearchAndListUserRequest request);
 	
+	public List<UserResponse> getAllUsers();
+	
 }

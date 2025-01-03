@@ -53,7 +53,8 @@ public class SecurityConfig {
                 "/api/users/assign-role",
                 "/api/users/by-email",
                 "/api/users/{userId}",
-                "/api/users/byAttributes"
+                "/api/users/byAttributes",
+                "/api/users/all"
             ).permitAll()
             .anyRequest().authenticated()
             .and()

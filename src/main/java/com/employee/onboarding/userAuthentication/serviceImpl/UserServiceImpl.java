@@ -247,10 +247,17 @@ public class UserServiceImpl implements UserService {
 			}
 
 			if (request != null && request.getFilterStatus() != null) {
-	            predicates.add(criteriaBuilder.equal(root.get("status"), request.getFilterStatus().name()));
-	        }
+				predicates.add(criteriaBuilder.equal(root.get("status"), request.getFilterStatus().name()));
+			}
 
 			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
 		};
+	}
+
+	@Override
+	public List<UserResponse> getAllUsers() {
+		List<User> users = userRepo.findAll();
+		return users.stream().map(user -> new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(),
+				user.getPhoneNumber(), user.getRole(), user.getStatus())).toList();
 	}
 }
