@@ -198,7 +198,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Get all users details by their attributes")
-	@GetMapping("/byRole")
+	@GetMapping("/byAttributes")
 	public ResponseEntity<List<UserResponse>> getUsersByAttributes(@ParameterObject SearchAndListUserRequest request) {
 	    try {
 	        List<UserResponse> users = userService.getUsersByAttribute(request);

@@ -1,6 +1,7 @@
 package com.employee.onboarding.userAuthentication.serviceImpl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -206,43 +207,50 @@ public class UserServiceImpl implements UserService {
 		return new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getPhoneNumber(),
 				user.getRole(), user.getStatus());
 	}
-	
+
 	@Override
 	public UserResponse getUserById(Long userId) throws UserNotFoundException {
 		Optional<User> byId = userRepo.findById(userId);
-		if(!byId.isPresent())
-		{
+		if (!byId.isPresent()) {
 			throw new UserNotFoundException("User not found with ID: " + userId);
 		}
 		User user = byId.get();
 		return new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getPhoneNumber(),
 				user.getRole(), user.getStatus());
 	}
-	
+
 	@Override
 	public List<UserResponse> getUsersByAttribute(SearchAndListUserRequest request) {
-        Specification<User> roleSpec = hasRole(request);
-        List<User> users = userRepo.findAll(roleSpec);
+		Specification<User> roleSpec = filterAttributes(request);
+		List<User> users = userRepo.findAll(roleSpec);
 
-        return users.stream()
-            .map(user -> new UserResponse(
-                user.getUserId(),
-                user.getUserName(),
-                user.getEmail(),
-                user.getPhoneNumber(),
-                user.getRole(),
-                user.getStatus()
-            ))
-            .toList();
-    }
-	
-	public static Specification<User> hasRole(SearchAndListUserRequest request) {
-		if (request == null || request.getFilterRole() == null) {
-	        return (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
-	    }
-        return (root, query, criteriaBuilder) -> {
-            Predicate predicate = criteriaBuilder.equal(root.get("role"), request.getFilterRole().name());
-            return predicate;
-        };
-    }
+		return users.stream().map(user -> new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(),
+				user.getPhoneNumber(), user.getRole(), user.getStatus())).toList();
+	}
+
+	public static Specification<User> filterAttributes(SearchAndListUserRequest request) {
+		return (root, query, criteriaBuilder) -> {
+			List<Predicate> predicates = new ArrayList<>();
+
+			if (request != null && request.getFilterRole() != null) {
+				predicates.add(criteriaBuilder.equal(root.get("role"), request.getFilterRole().name()));
+			}
+
+			if (request != null && request.getFilterUserName() != null && !request.getFilterUserName().isEmpty()) {
+				predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("userName")),
+						"%" + request.getFilterUserName().toLowerCase() + "%"));
+			}
+
+			if (request != null && request.getFilterPhoneNumber() != null
+					&& !request.getFilterPhoneNumber().isEmpty()) {
+				predicates.add(criteriaBuilder.equal(root.get("phoneNumber"), request.getFilterPhoneNumber()));
+			}
+
+			if (request != null && request.getFilterStatus() != null) {
+	            predicates.add(criteriaBuilder.equal(root.get("status"), request.getFilterStatus().name()));
+	        }
+
+			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+		};
+	}
 }
