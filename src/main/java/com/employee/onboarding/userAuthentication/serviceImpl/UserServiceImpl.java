@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -133,6 +134,14 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public LoginResponse login(LoginRequest request) {
+		User user = userRepo.findByEmail(request.getEmail());
+		if (user == null) {
+			throw new BadCredentialsException("User not found with the provided email!");
+		}
+		
+		if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
+			throw new IllegalStateException("Login not allowed. User status is not active!");
+		}
 		UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(request.getEmail(),
 				request.getPassword());
 
