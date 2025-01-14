@@ -46,7 +46,7 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-	@Operation(summary = "Generate a JWT token for a valid username")
+	@Operation(summary = "Generate a JWT token")
 	@PostMapping("/generate-token")
 	public ResponseEntity<Message> generateToken(@ParameterObject TokenRequest tokenRequest) {
 		try {
@@ -79,7 +79,7 @@ public class UserController {
 		}
 	}
 
-	@Operation(summary = "Verify a user's OTP")
+	@Operation(summary = "Verify OTP")
 	@PostMapping("/verify-otp")
 	public ResponseEntity<Message> verifyOtp(@RequestParam Long userId, @RequestParam String otp) {
 		try {
@@ -90,7 +90,7 @@ public class UserController {
 		}
 	}
 
-	@Operation(summary = "Resend OTP for user registration verification")
+	@Operation(summary = "Resend OTP")
 	@PostMapping("/resend-otp")
 	public ResponseEntity<Message> resendOtp(@RequestParam String email) {
 		try {
@@ -151,7 +151,7 @@ public class UserController {
 		}
 	}
 
-	@Operation(summary = "Change the user's password")
+	@Operation(summary = "Change password")
 	@PostMapping("/change-password")
 	public ResponseEntity<Message> changePassword(@ParameterObject ChangePasswordRequest request) {
 		try {
@@ -163,7 +163,7 @@ public class UserController {
 		}
 	}
 
-	@Operation(summary = "Update the user's details based on email")
+	@Operation(summary = "Update user details based on email")
 	@PutMapping("/update")
 	public ResponseEntity<Message> updateUserDetails(@RequestParam String emailId,
 			@ParameterObject UserUpdateRequest updateRequest) {
@@ -208,6 +208,9 @@ public class UserController {
 	public ResponseEntity<List<UserResponse>> getUsersByAttributes(@ParameterObject SearchAndListUserRequest request) {
 		try {
 			List<UserResponse> users = userService.getUsersByAttribute(request);
+			if (users.size() == 1 && users.get(0).getMessage() != null) {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(users);
+	        }
 			return ResponseEntity.ok(users);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

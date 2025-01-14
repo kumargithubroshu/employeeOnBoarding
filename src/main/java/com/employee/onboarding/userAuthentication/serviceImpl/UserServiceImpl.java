@@ -238,6 +238,10 @@ public class UserServiceImpl implements UserService {
 	public List<UserResponse> getUsersByAttribute(SearchAndListUserRequest request) {
 		Specification<User> roleSpec = filterAttributes(request);
 		List<User> users = userRepo.findAll(roleSpec);
+		
+		if (users.isEmpty()) {
+	        return List.of(new UserResponse("No users found with given criteria."));
+	    }
 
 		return users.stream().map(user -> new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(),
 				user.getPhoneNumber(), user.getRole(), user.getStatus())).toList();
