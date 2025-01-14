@@ -135,26 +135,26 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public LoginResponse login(LoginRequest request) {
 		User user = userRepo.findByEmail(request.getEmail());
-	    
-	    if (user == null) {
-	        return new LoginResponse("User not found with the provided email!");
-	    }
 
-	    if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
-	        return new LoginResponse("Login not allowed. User status is not active!");
-	    }
-	    
-	    try {
-	        UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(
-	            request.getEmail(), request.getPassword());
+		if (user == null) {
+			return new LoginResponse("User not found with the provided email!");
+		}
 
-	        authenticationManager.authenticate(authInputToken);
+		if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
+			return new LoginResponse("Login not allowed. User status is not active!");
+		}
 
-	        String token = jwtUtils.generateToken(request.getEmail());
-	        return new LoginResponse(token, "Login Successful!");
-	    } catch (BadCredentialsException e) {
-	        return new LoginResponse("Incorrect password!");
-	    }
+		try {
+			UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(
+					request.getEmail(), request.getPassword());
+
+			authenticationManager.authenticate(authInputToken);
+
+			String token = jwtUtils.generateToken(request.getEmail());
+			return new LoginResponse(token, "Login Successful!");
+		} catch (BadCredentialsException e) {
+			return new LoginResponse("Incorrect password!");
+		}
 	}
 
 	@Override

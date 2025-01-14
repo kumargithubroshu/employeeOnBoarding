@@ -127,12 +127,13 @@ public class UserController {
 			LoginResponse response = userService.login(request);
 			return ResponseEntity.ok(response);
 		} catch (BadCredentialsException e) {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse("Invalid email or password!"));
-	    } catch (IllegalStateException e) {
-	        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new LoginResponse(e.getMessage()));
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new LoginResponse("Unexpected error occurred!"));
-	    }
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse("Invalid email or password!"));
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new LoginResponse(e.getMessage()));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new LoginResponse("Unexpected error occurred!"));
+		}
 	}
 
 	@Operation(summary = "Request a temporary password to be sent to the registered email")
@@ -205,24 +206,24 @@ public class UserController {
 	@Operation(summary = "Get all users details by their attributes")
 	@GetMapping("/byAttributes")
 	public ResponseEntity<List<UserResponse>> getUsersByAttributes(@ParameterObject SearchAndListUserRequest request) {
-	    try {
-	        List<UserResponse> users = userService.getUsersByAttribute(request);
-	        return ResponseEntity.ok(users);
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(Collections.singletonList(new UserResponse("Failed to fetch user details.")));
-	    }
+		try {
+			List<UserResponse> users = userService.getUsersByAttribute(request);
+			return ResponseEntity.ok(users);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Collections.singletonList(new UserResponse("Failed to fetch user details.")));
+		}
 	}
-	
+
 	@Operation(summary = "Get all users")
 	@GetMapping("/all")
 	public ResponseEntity<List<UserResponse>> getAllUsers() {
-	    try {
-	        List<UserResponse> users = userService.getAllUsers();
-	        return ResponseEntity.ok(users);
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(Collections.singletonList(new UserResponse("Failed to fetch user details.")));
-	    }
+		try {
+			List<UserResponse> users = userService.getAllUsers();
+			return ResponseEntity.ok(users);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Collections.singletonList(new UserResponse("Failed to fetch user details.")));
+		}
 	}
 }
