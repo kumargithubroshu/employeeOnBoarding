@@ -238,10 +238,10 @@ public class UserServiceImpl implements UserService {
 	public List<UserResponse> getUsersByAttribute(SearchAndListUserRequest request) {
 		Specification<User> roleSpec = filterAttributes(request);
 		List<User> users = userRepo.findAll(roleSpec);
-		
+
 		if (users.isEmpty()) {
-	        return List.of(new UserResponse("No users found with given criteria."));
-	    }
+			return List.of(new UserResponse("No users found with given criteria."));
+		}
 
 		return users.stream().map(user -> new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(),
 				user.getPhoneNumber(), user.getRole(), user.getStatus())).toList();
@@ -278,5 +278,22 @@ public class UserServiceImpl implements UserService {
 		List<User> users = userRepo.findAll();
 		return users.stream().map(user -> new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(),
 				user.getPhoneNumber(), user.getRole(), user.getStatus())).toList();
+	}
+
+	@Override
+	public void deleteUserById(Long userId) {
+		User user = userRepo.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+
+		userRepo.delete(user);
+	}
+
+	@Override
+	public void deleteUserByEmail(String email) {
+		User user = userRepo.findByEmail(email);
+		if (user == null) {
+			throw new UserNotFoundException("User not found with email: " + email);
+		}
+		userRepo.delete(user);
 	}
 }

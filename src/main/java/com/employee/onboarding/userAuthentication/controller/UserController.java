@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,7 +35,6 @@ import com.employee.onboarding.userAuthentication.pojoResponse.UserResponse;
 import com.employee.onboarding.userAuthentication.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")
@@ -209,8 +209,8 @@ public class UserController {
 		try {
 			List<UserResponse> users = userService.getUsersByAttribute(request);
 			if (users.size() == 1 && users.get(0).getMessage() != null) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(users);
-	        }
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(users);
+			}
 			return ResponseEntity.ok(users);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -228,5 +228,34 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(Collections.singletonList(new UserResponse("Failed to fetch user details.")));
 		}
+	}
+
+	@Operation(summary = "Delete a user by userId")
+	@DeleteMapping("/{userId}")
+	public ResponseEntity<Message> deleteUserById(@PathVariable Long userId) {
+		try {
+			userService.deleteUserById(userId);
+			return ResponseEntity.ok(new Message("User deleted successfully."));
+		} catch (UserNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("User not found with ID: " + userId));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new Message("Failed to delete user. Please try again later."));
+		}
+	}
+
+	@Operation(summary = "Delete a user by email")
+	@DeleteMapping("/by-email")
+	public ResponseEntity<Message> deleteUserByEmail(@RequestParam String email) {
+	    try {
+	        userService.deleteUserByEmail(email);
+	        return ResponseEntity.ok(new Message("User deleted successfully."));
+	    } catch (UserNotFoundException e) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(new Message("User not found with email: " + email));
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(new Message("Failed to delete user. Please try again later."));
+	    }
 	}
 }

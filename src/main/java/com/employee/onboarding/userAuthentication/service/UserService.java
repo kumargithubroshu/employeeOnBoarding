@@ -39,4 +39,8 @@ public interface UserService {
 	
 	public List<UserResponse> getAllUsers();
 	
+	public void deleteUserById(Long userId);
+	
+	public void deleteUserByEmail(String email);
+	
 }
