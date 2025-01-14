@@ -7,6 +7,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -119,15 +120,19 @@ public class UserController {
 		}
 	}
 
-	@Operation(summary = "Login a user with valid credentials")
+	@Operation(summary = "User Login")
 	@PostMapping("/login")
 	public ResponseEntity<LoginResponse> login(@ParameterObject @Valid LoginRequest request) {
 		try {
 			LoginResponse response = userService.login(request);
 			return ResponseEntity.ok(response);
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-		}
+		} catch (BadCredentialsException e) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse("Invalid email or password!"));
+	    } catch (IllegalStateException e) {
+	        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new LoginResponse(e.getMessage()));
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new LoginResponse("Unexpected error occurred!"));
+	    }
 	}
 
 	@Operation(summary = "Request a temporary password to be sent to the registered email")
