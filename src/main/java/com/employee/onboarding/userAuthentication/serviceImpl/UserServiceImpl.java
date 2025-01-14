@@ -183,7 +183,7 @@ public class UserServiceImpl implements UserService {
 		if (user == null) {
 			throw new UserNotFoundException("User not found");
 		}
-		if (!user.getPassword().equals(request.getCurrentPassword())) {
+		if (!user.getPassword().equals(request.getTemporaryPassword())) {
 			throw new InvalidPasswordException("Temporary password is incorrect.");
 		}
 		user.setPassword(passwordEncoder.encode(request.getNewPassword()));

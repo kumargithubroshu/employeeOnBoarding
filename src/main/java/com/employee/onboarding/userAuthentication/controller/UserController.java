@@ -136,7 +136,7 @@ public class UserController {
 		}
 	}
 
-	@Operation(summary = "Request a temporary password to be sent to the registered email")
+	@Operation(summary = "Request a temporary password")
 	@PostMapping("/forgot-password")
 	public ResponseEntity<Message> forgotPassword(@RequestParam String email) {
 		try {
