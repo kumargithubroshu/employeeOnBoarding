@@ -122,7 +122,7 @@ public class UserController {
 
 	@Operation(summary = "User Login")
 	@PostMapping("/login")
-	public ResponseEntity<LoginResponse> login(@ParameterObject @Valid LoginRequest request) {
+	public ResponseEntity<LoginResponse> login(@ParameterObject LoginRequest request) {
 		try {
 			LoginResponse response = userService.login(request);
 			return ResponseEntity.ok(response);
