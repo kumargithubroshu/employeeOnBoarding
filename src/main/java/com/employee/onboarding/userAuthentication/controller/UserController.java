@@ -84,7 +84,7 @@ public class UserController {
 	public ResponseEntity<Message> verifyOtp(@RequestParam Long userId, @RequestParam String otp) {
 		try {
 			userService.verifyOtp(userId, otp);
-			return ResponseEntity.ok(new Message("User verified successfully and status set to ACTIVE."));
+			return ResponseEntity.ok(new Message("User verified successfully !"));
 		} catch (InvalidOtpException e) {
 			return ResponseEntity.badRequest().body(new Message(e.getMessage()));
 		}
