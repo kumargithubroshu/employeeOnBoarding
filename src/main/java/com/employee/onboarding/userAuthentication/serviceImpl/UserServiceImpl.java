@@ -134,12 +134,19 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public LoginResponse login(LoginRequest request) {
+
+		if (request.getEmail() == null || request.getEmail().isBlank()) {
+			return new LoginResponse("Email is required!");
+		}
+		if (request.getPassword() == null || request.getPassword().isBlank()) {
+			return new LoginResponse("Password is required!");
+		}
+
 		User user = userRepo.findByEmail(request.getEmail());
 
 		if (user == null) {
 			return new LoginResponse("User not found with the provided email!");
 		}
-
 		if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
 			return new LoginResponse("Login not allowed. User status is not active!");
 		}
