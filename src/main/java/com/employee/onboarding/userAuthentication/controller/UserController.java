@@ -45,9 +45,25 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+	
+	private static final String GENERATE_TOKEN = "/generate-token";
+	private static final String REGISTER_USER = "/register";
+	private static final String VERIFY_OTP = "/verify-otp";
+	private static final String RESEND_OTP = "/resend-otp";
+	private static final String ASSIGN_ROLE = "/assign-role";
+	private static final String USER_LOGIN = "/login";
+	private static final String FORGOT_PASSWORD = "/forgot-password";
+	private static final String CHANGE_PASSWORD = "/change-password";
+	private static final String UPDATE_USER_DETAILS = "/update";
+	private static final String GET_USER_BY_EMAIL = "/by-email";
+	private static final String GET_USER_BY_ID = "/{userId}";
+	private static final String SEARCH_USER = "/byAttributes";
+	private static final String LIST_USERS = "/all";
+	private static final String DELETE_BY_USER_ID = "/{userId}";
+	private static final String DELETE_BY_USER_EMAIL = "/by-email";
 
 	@Operation(summary = "Generate a JWT token")
-	@PostMapping("/generate-token")
+	@PostMapping(value = GENERATE_TOKEN)
 	public ResponseEntity<Message> generateToken(@ParameterObject TokenRequest tokenRequest) {
 		try {
 			if (tokenRequest.getUsername() == null || tokenRequest.getUsername().isBlank()) {
@@ -65,7 +81,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Register a new user")
-	@PostMapping("/register")
+	@PostMapping(value = REGISTER_USER)
 	public ResponseEntity<Message> registerNewUser(@ParameterObject UserRequest request) {
 		try {
 			userService.rgisterNewUser(request);
@@ -80,7 +96,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Verify OTP")
-	@PostMapping("/verify-otp")
+	@PostMapping(value = VERIFY_OTP)
 	public ResponseEntity<Message> verifyOtp(@RequestParam Long userId, @RequestParam String otp) {
 		try {
 			userService.verifyOtp(userId, otp);
@@ -91,7 +107,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Resend OTP")
-	@PostMapping("/resend-otp")
+	@PostMapping(RESEND_OTP)
 	public ResponseEntity<Message> resendOtp(@RequestParam String email) {
 		try {
 			userService.resendOtp(email);
@@ -106,7 +122,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Assign a role to a user")
-	@PutMapping("/assign-role")
+	@PutMapping(value = ASSIGN_ROLE)
 	public ResponseEntity<Message> assignRoleToUser(@RequestParam String email, @RequestParam Role role) {
 		try {
 			userService.assignRoleToUser(email, role);
@@ -121,7 +137,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "User Login")
-	@PostMapping("/login")
+	@PostMapping(value = USER_LOGIN)
 	public ResponseEntity<LoginResponse> login(@ParameterObject LoginRequest request) {
 		try {
 			LoginResponse response = userService.login(request);
@@ -137,7 +153,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Request a temporary password")
-	@PostMapping("/forgot-password")
+	@PostMapping(value = FORGOT_PASSWORD)
 	public ResponseEntity<Message> forgotPassword(@RequestParam String email) {
 		try {
 			userService.sendPasswordByEmail(email);
@@ -152,7 +168,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Change password")
-	@PostMapping("/change-password")
+	@PostMapping(value = CHANGE_PASSWORD)
 	public ResponseEntity<Message> changePassword(@ParameterObject ChangePasswordRequest request) {
 		try {
 			userService.changePassword(request);
@@ -164,7 +180,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Update user details based on email")
-	@PutMapping("/update")
+	@PutMapping(value = UPDATE_USER_DETAILS)
 	public ResponseEntity<Message> updateUserDetails(@RequestParam String emailId,
 			@ParameterObject UserUpdateRequest updateRequest) {
 		try {
@@ -180,7 +196,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Get user details by email ID")
-	@GetMapping("/by-email")
+	@GetMapping(value = GET_USER_BY_EMAIL)
 	public ResponseEntity<UserResponse> getUserByEmail(@RequestParam String email) {
 		try {
 			UserResponse user = userService.getUserByEmail(email);
@@ -192,7 +208,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Get user details by userId")
-	@GetMapping("/{userId}")
+	@GetMapping(value = GET_USER_BY_ID)
 	public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
 		try {
 			UserResponse userResponse = userService.getUserById(userId);
@@ -204,7 +220,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Get all users details by their attributes")
-	@GetMapping("/byAttributes")
+	@GetMapping(value = SEARCH_USER)
 	public ResponseEntity<List<UserResponse>> getUsersByAttributes(@ParameterObject SearchAndListUserRequest request) {
 		try {
 			List<UserResponse> users = userService.getUsersByAttribute(request);
@@ -219,7 +235,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Get all users")
-	@GetMapping("/all")
+	@GetMapping(value = LIST_USERS)
 	public ResponseEntity<List<UserResponse>> getAllUsers() {
 		try {
 			List<UserResponse> users = userService.getAllUsers();
@@ -231,7 +247,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Delete a user by userId")
-	@DeleteMapping("/{userId}")
+	@DeleteMapping(value = DELETE_BY_USER_ID)
 	public ResponseEntity<Message> deleteUserById(@PathVariable Long userId) {
 		try {
 			userService.deleteUserById(userId);
@@ -245,7 +261,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Delete a user by email")
-	@DeleteMapping("/by-email")
+	@DeleteMapping(value = DELETE_BY_USER_EMAIL)
 	public ResponseEntity<Message> deleteUserByEmail(@RequestParam String email) {
 	    try {
 	        userService.deleteUserByEmail(email);
