@@ -1,6 +1,5 @@
 package com.employee.onboarding.userAuthentication.pojoResponse;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
