@@ -75,10 +75,9 @@ public class UserServiceImpl implements UserService {
 		User savedUser = userRepo.save(user);
 
 		String otp = generateOtp();
-		otpService.saveOtpForUser(savedUser.getUserId(), otp);
+		otpService.saveOtpForEmail(savedUser.getEmail(), otp);
 
-		emailService.sendEmail(savedUser.getEmail(), "OTP Verification",
-				"Your OTP is: " + otp + " and user id is: " + savedUser.getUserId());
+		emailService.sendEmail(savedUser.getEmail(), "OTP Verification", "Your OTP is: " + otp);
 		return savedUser;
 	}
 
@@ -87,21 +86,41 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void verifyOtp(Long userId, String otp) {
+	public void verifyOtp(String email, String otp) {
+		String savedOtp = otpService.getOtpForEmail(email);
 
-		String savedOtp = otpService.getOtpForUser(userId);
 		if (!otp.equals(savedOtp)) {
 			throw new InvalidOtpException("Invalid OTP provided.");
 		}
-		User user = userRepo.findById(userId)
-				.orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+		User user = userRepo.findByEmail(email);
+		if (user == null) {
+			throw new UserNotFoundException("No user found with the provided email.");
+		}
 
 		user.setStatus(Status.ACTIVE.toString());
 		user.setUpdatedAt(LocalDateTime.now());
 		userRepo.save(user);
 
-		otpService.removeOtpForUser(userId);
+		otpService.removeOtpForEmail(email);
 	}
+
+//	@Override
+//	public void verifyOtp(Long userId, String otp) {
+//
+//		String savedOtp = otpService.getOtpForUser(userId);
+//		if (!otp.equals(savedOtp)) {
+//			throw new InvalidOtpException("Invalid OTP provided.");
+//		}
+//		User user = userRepo.findById(userId)
+//				.orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+//
+//		user.setStatus(Status.ACTIVE.toString());
+//		user.setUpdatedAt(LocalDateTime.now());
+//		userRepo.save(user);
+//
+//		otpService.removeOtpForUser(userId);
+//	}
 
 	@Override
 	public void resendOtp(String email) throws Exception {

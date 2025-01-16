@@ -97,9 +97,9 @@ public class UserController {
 
 	@Operation(summary = "Verify OTP")
 	@PostMapping(value = VERIFY_OTP)
-	public ResponseEntity<Message> verifyOtp(@RequestParam Long userId, @RequestParam String otp) {
+	public ResponseEntity<Message> verifyOtp(@RequestParam String email, @RequestParam String otp) {
 		try {
-			userService.verifyOtp(userId, otp);
+			userService.verifyOtp(email, otp);
 			return ResponseEntity.ok(new Message("User verified successfully !"));
 		} catch (InvalidOtpException e) {
 			return ResponseEntity.badRequest().body(new Message(e.getMessage()));

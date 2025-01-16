@@ -19,7 +19,8 @@ public interface UserService {
 	
 	public User rgisterNewUser(UserRequest request) throws Exception;
 	
-	public void verifyOtp(Long userId, String otp);
+	public void verifyOtp(String email, String otp);
+//	public void verifyOtp(Long userId, String otp);
 	
 	public void resendOtp(String email) throws Exception;
 	
