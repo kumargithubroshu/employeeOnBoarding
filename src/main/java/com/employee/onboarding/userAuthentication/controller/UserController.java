@@ -35,6 +35,7 @@ import com.employee.onboarding.userAuthentication.pojoResponse.UserResponse;
 import com.employee.onboarding.userAuthentication.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")
@@ -85,7 +86,7 @@ public class UserController {
 	public ResponseEntity<Message> registerNewUser(@ParameterObject UserRequest request) {
 		try {
 			userService.rgisterNewUser(request);
-			return ResponseEntity.ok(new Message("User registered successfully. Check your email for OTP."));
+			return ResponseEntity.ok(new Message("Your registeration is under process. Please check your email for OTP."));
 		} catch (EmailAlreadyInUseException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body(new Message("This email is already in use. Please try again"));
@@ -138,7 +139,7 @@ public class UserController {
 
 	@Operation(summary = "User Login")
 	@PostMapping(value = USER_LOGIN)
-	public ResponseEntity<LoginResponse> login(@ParameterObject LoginRequest request) {
+	public ResponseEntity<LoginResponse> login(@ParameterObject @Valid LoginRequest request) {
 		try {
 			LoginResponse response = userService.login(request);
 			return ResponseEntity.ok(response);

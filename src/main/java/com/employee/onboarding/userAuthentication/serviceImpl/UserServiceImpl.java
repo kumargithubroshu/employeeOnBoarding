@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
 			throw new UserNotFoundException("No user found with the provided email.");
 		}
 
-		user.setStatus(Status.ACTIVE.toString());
+		user.setStatus(Status.UNDER_PROGRESS.toString());
 		user.setUpdatedAt(LocalDateTime.now());
 		userRepo.save(user);
 
@@ -147,6 +147,7 @@ public class UserServiceImpl implements UserService {
 		}
 
 		user.setRole(role.toString());
+		user.setStatus(Status.ACTIVE.toString());
 		user.setUpdatedAt(LocalDateTime.now());
 		userRepo.save(user);
 	}
@@ -167,7 +168,7 @@ public class UserServiceImpl implements UserService {
 			return new LoginResponse("User not found with the provided email!");
 		}
 		if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
-			return new LoginResponse("Login not allowed. User status is not active!");
+			return new LoginResponse("Login not allowed. You are not a active user!");
 		}
 
 		try {
