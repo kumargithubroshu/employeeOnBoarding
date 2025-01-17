@@ -3,6 +3,8 @@ package com.employee.onboarding.userAuthentication.controller;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -62,10 +64,13 @@ public class UserController {
 	private static final String LIST_USERS = "/all";
 	private static final String DELETE_BY_USER_ID = "/{userId}";
 	private static final String DELETE_BY_USER_EMAIL = "/by-email";
+	
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Operation(summary = "Generate a JWT token")
 	@PostMapping(value = GENERATE_TOKEN)
 	public ResponseEntity<Message> generateToken(@ParameterObject TokenRequest tokenRequest) {
+		log.info("Attempting to generate token for user: {}", tokenRequest.getUsername());
 		try {
 			if (tokenRequest.getUsername() == null || tokenRequest.getUsername().isBlank()) {
 				throw new IllegalArgumentException("Username cannot be empty or null");
@@ -74,8 +79,10 @@ public class UserController {
 				throw new UsernameMismatchException("User not found: " + tokenRequest.getUsername());
 			}
 			String token = jwtUtils.generateToken(tokenRequest.getUsername());
+			log.info("Token generated successfully for user: {}", token);
 			return ResponseEntity.ok(new Message(token));
 		} catch (Exception e) {
+			log.error("Unexpected error during token generation", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(new Message("An unexpected error occurred"));
 		}
@@ -84,13 +91,17 @@ public class UserController {
 	@Operation(summary = "Register a new user")
 	@PostMapping(value = REGISTER_USER)
 	public ResponseEntity<Message> registerNewUser(@ParameterObject UserRequest request) {
+		log.info("Attempting to register a new user with email: {}", request.getEmail());
 		try {
 			userService.rgisterNewUser(request);
+			log.info("User registration is under progress !");
 			return ResponseEntity.ok(new Message("Your registeration is under process. Please check your email for OTP."));
 		} catch (EmailAlreadyInUseException e) {
+			log.error("Registration failed. Email already in use: ", request.getEmail(), e);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body(new Message("This email is already in use. Please try again"));
 		} catch (Exception e) {
+			log.error("Unexpected error : ", request.getEmail(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(new Message("Registration failed. Please try again."));
 		}
@@ -99,10 +110,13 @@ public class UserController {
 	@Operation(summary = "Verify OTP")
 	@PostMapping(value = VERIFY_OTP)
 	public ResponseEntity<Message> verifyOtp(@RequestParam String email, @RequestParam String otp) {
+		log.info("Verifying OTP for email: ", email);
 		try {
 			userService.verifyOtp(email, otp);
+			log.info("user verified");
 			return ResponseEntity.ok(new Message("User verified successfully !"));
 		} catch (InvalidOtpException e) {
+			log.error("Invalid OTP", otp);
 			return ResponseEntity.badRequest().body(new Message(e.getMessage()));
 		}
 	}
@@ -114,9 +128,11 @@ public class UserController {
 			userService.resendOtp(email);
 			return ResponseEntity.ok(new Message("OTP has been resent successfully to your registered email."));
 		} catch (UserNotFoundException e) {
+			log.error("no user found with the email: ", email);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 					.body(new Message("No user found with the provided email."));
 		} catch (Exception e) {
+			log.error("Unexpected error");
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(new Message("Failed to resend OTP. Please try again later."));
 		}
@@ -129,9 +145,11 @@ public class UserController {
 			userService.assignRoleToUser(email, role);
 			return ResponseEntity.ok(new Message("Role assigned successfully."));
 		} catch (UserNotFoundException e) {
+			log.error("no user found : ", email);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 					.body(new Message("User not found with the provided email."));
 		} catch (Exception e) {
+			log.error("unexpected error");
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(new Message("Failed to assign role. Please try again later."));
 		}
@@ -144,6 +162,7 @@ public class UserController {
 			LoginResponse response = userService.login(request);
 			return ResponseEntity.ok(response);
 		} catch (BadCredentialsException e) {
+			log.error("invalid email and password : ", request.getEmail(), request.getPassword());
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse("Invalid email or password!"));
 		} catch (IllegalStateException e) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new LoginResponse(e.getMessage()));
@@ -160,6 +179,7 @@ public class UserController {
 			userService.sendPasswordByEmail(email);
 			return ResponseEntity.ok(new Message("Your temporary password has been sent to your registered email."));
 		} catch (UserNotFoundException e) {
+			log.error("user not found : ", email);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 					.body(new Message("No user found with the provided email address."));
 		} catch (Exception e) {
