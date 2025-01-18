@@ -35,7 +35,6 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	    http.csrf().disable()
 	        .authorizeHttpRequests()
-	        // Public endpoints
 	        .requestMatchers(
 	            "/v3/api-docs/**",
 	            "/swagger-ui/**",
