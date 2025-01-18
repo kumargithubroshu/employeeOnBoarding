@@ -21,6 +21,7 @@ import com.employee.onboarding.userAuthentication.entity.User;
 import com.employee.onboarding.userAuthentication.enummeration.Role;
 import com.employee.onboarding.userAuthentication.enummeration.Status;
 import com.employee.onboarding.userAuthentication.exception.EmailAlreadyInUseException;
+import com.employee.onboarding.userAuthentication.exception.InactiveUserException;
 import com.employee.onboarding.userAuthentication.exception.InvalidOtpException;
 import com.employee.onboarding.userAuthentication.exception.InvalidPasswordException;
 import com.employee.onboarding.userAuthentication.exception.UserNotFoundException;
@@ -133,10 +134,10 @@ public class UserServiceImpl implements UserService {
 		}
 
 		String otp = generateOtp();
-		otpService.saveOtpForUser(user.getUserId(), otp);
+		otpService.saveOtpForEmail(user.getEmail(), otp);
 
 		emailService.sendEmail(user.getEmail(), "Resend OTP Verification", "Your new OTP is: " + otp
-				+ " and userId is: " + user.getUserId() + ".  Please verify within 5 minutes.");
+				 + ".  Please verify within 5 minutes.");
 	}
 
 	@Override
@@ -144,6 +145,10 @@ public class UserServiceImpl implements UserService {
 		User user = userRepo.findByEmail(email);
 		if (user == null) {
 			throw new UserNotFoundException("User not found with the provided email: " + email);
+		}
+		
+		if (!"UNDER_PROGRESS".equalsIgnoreCase(user.getStatus())) {
+			throw new InactiveUserException("User still inactive ..........needs to verify their mail !: " + email);
 		}
 
 		user.setRole(role.toString());

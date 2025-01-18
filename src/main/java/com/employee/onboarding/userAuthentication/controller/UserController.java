@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.employee.onboarding.userAuthentication.configuration.JwtUtils;
 import com.employee.onboarding.userAuthentication.enummeration.Role;
 import com.employee.onboarding.userAuthentication.exception.EmailAlreadyInUseException;
+import com.employee.onboarding.userAuthentication.exception.InactiveUserException;
 import com.employee.onboarding.userAuthentication.exception.InvalidOtpException;
 import com.employee.onboarding.userAuthentication.exception.UserNotFoundException;
 import com.employee.onboarding.userAuthentication.exception.UsernameMismatchException;
@@ -48,7 +49,7 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
-	
+
 	private static final String GENERATE_TOKEN = "/generate-token";
 	private static final String REGISTER_USER = "/register";
 	private static final String VERIFY_OTP = "/verify-otp";
@@ -64,7 +65,7 @@ public class UserController {
 	private static final String LIST_USERS = "/all";
 	private static final String DELETE_BY_USER_ID = "/{userId}";
 	private static final String DELETE_BY_USER_EMAIL = "/by-email";
-	
+
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Operation(summary = "Generate a JWT token")
@@ -95,7 +96,8 @@ public class UserController {
 		try {
 			userService.rgisterNewUser(request);
 			log.info("User registration is under progress !");
-			return ResponseEntity.ok(new Message("Your registeration is under process. Please check your email for OTP."));
+			return ResponseEntity
+					.ok(new Message("Your registeration is under process. Please check your email for OTP."));
 		} catch (EmailAlreadyInUseException e) {
 			log.error("Registration failed. Email already in use: ", request.getEmail(), e);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -146,8 +148,10 @@ public class UserController {
 			return ResponseEntity.ok(new Message("Role assigned successfully."));
 		} catch (UserNotFoundException e) {
 			log.error("no user found : ", email);
-			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-					.body(new Message("User not found with the provided email."));
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message(e.getMessage()));
+		} catch (InactiveUserException e) {
+			log.error("no user found : ", email);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message(e.getMessage()));
 		} catch (Exception e) {
 			log.error("unexpected error");
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -284,15 +288,14 @@ public class UserController {
 	@Operation(summary = "Delete a user by email")
 	@DeleteMapping(value = DELETE_BY_USER_EMAIL)
 	public ResponseEntity<Message> deleteUserByEmail(@RequestParam String email) {
-	    try {
-	        userService.deleteUserByEmail(email);
-	        return ResponseEntity.ok(new Message("User deleted successfully."));
-	    } catch (UserNotFoundException e) {
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-	                .body(new Message("User not found with email: " + email));
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(new Message("Failed to delete user. Please try again later."));
-	    }
+		try {
+			userService.deleteUserByEmail(email);
+			return ResponseEntity.ok(new Message("User deleted successfully."));
+		} catch (UserNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("User not found with email: " + email));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new Message("Failed to delete user. Please try again later."));
+		}
 	}
 }
